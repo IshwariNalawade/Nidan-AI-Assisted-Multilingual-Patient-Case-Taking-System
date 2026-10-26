@@ -1,0 +1,8 @@
+packages:
+  - .
+
+# Original OCR assets and Prisma engine generation require install lifecycle scripts.
+onlyBuiltDependencies:
+  - '@prisma/client'
+  - '@prisma/engines'
+  - esbuild

@@ -1,0 +1,19 @@
+services:
+  mysql:
+    image: mysql:8.4
+    environment:
+      MYSQL_ROOT_PASSWORD: nidan-root-local-only
+      MYSQL_USER: nidan
+      MYSQL_PASSWORD: nidan-local-only
+      MYSQL_DATABASE: nidan
+    ports:
+      - "3306:3306"
+    volumes:
+      - nidan-mysql:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-unidan", "-pnidan-local-only"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+volumes:
+  nidan-mysql:

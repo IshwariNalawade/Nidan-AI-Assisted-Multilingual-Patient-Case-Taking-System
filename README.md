@@ -2,7 +2,7 @@
 
 > **NIDAN** helps clinics collect a clearer patient story before the consultation — in the patient’s language, with voice, touch, OCR, safety flags, and a structured handoff for staff and clinicians.
 
-[![CI](https://github.com/IshwariNalawade/Nidan-AI-Assisted-Multilingual-Patient-Case-Taking-System/actions/workflows/ci.yml/badge.svg)](https://github.com/OWNER/REPO/actions/workflows/ci.yml)
+[![CI](https://github.com/IshwariNalawade/Nidan-AI-Assisted-Multilingual-Patient-Case-Taking-System/actions/workflows/ci.yml/badge.svg)](https://github.com/IshwariNalawade/Nidan-AI-Assisted-Multilingual-Patient-Case-Taking-System/actions/workflows/ci.yml)
 
 ## Why this matters
 

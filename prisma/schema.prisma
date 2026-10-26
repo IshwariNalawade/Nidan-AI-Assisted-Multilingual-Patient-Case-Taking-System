@@ -1,0 +1,210 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  PATIENT
+  DOCTOR
+  STAFF
+}
+
+enum AssessmentStatus {
+  DRAFT
+  SUBMITTED
+  IN_REVIEW
+  REVIEWED
+}
+
+enum TriageStatus {
+  PENDING
+  TRIAGED
+  REFERRED
+}
+
+enum DocumentStatus {
+  UPLOADED
+  OCR_REVIEWED
+  CONFIRMED
+}
+
+model User {
+  id             String          @id @default(cuid())
+  email          String          @unique
+  passwordHash   String
+  role           UserRole        @default(PATIENT)
+  organizationId String?
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  organization   Organization?   @relation(fields: [organizationId], references: [id], onDelete: SetNull)
+  patientProfile PatientProfile?
+  sessions       UserSession[]
+  assignedCases  Assessment[]    @relation("AssignedDoctor")
+  triagedCases   Assessment[]    @relation("StaffTriaged")
+  reviews        DoctorReview[]
+  auditEvents    AuditEvent[]    @relation("AuditActor")
+}
+
+model Organization {
+  id          String       @id @default(cuid())
+  slug        String       @unique
+  name        String
+  kind        String       @default("GENERAL")
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  users       User[]
+  assessments Assessment[] @relation("AssessmentOrganization")
+}
+
+model PatientProfile {
+  id                String            @id @default(cuid())
+  userId            String            @unique
+  fullName          String
+  ageYears          Int?
+  sex               String?
+  phone             String?
+  preferredLanguage String            @default("en-IN")
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+  user              User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  medicalHistory    MedicalHistory?
+  consents          Consent[]
+  assessments       Assessment[]
+  documents         MedicalDocument[]
+}
+
+model UserSession {
+  id        String   @id @default(cuid())
+  userId    String
+  tokenHash String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, expiresAt])
+  @@index([expiresAt])
+}
+
+model Consent {
+  id              String         @id @default(cuid())
+  patientId       String
+  careConsent     Boolean
+  researchConsent Boolean        @default(false)
+  aiProcessing    Boolean        @default(false)
+  language        String
+  version         String
+  createdAt       DateTime       @default(now())
+  patient         PatientProfile @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  assessments     Assessment[]
+
+  @@index([patientId, createdAt])
+}
+
+model Assessment {
+  id               String            @id @default(cuid())
+  sourceSessionId  String?           @unique
+  queueToken       String?           @unique
+  patientId        String
+  organizationId   String?
+  consentId        String?
+  assignedDoctorId String?
+  triagedById      String?
+  status           AssessmentStatus  @default(SUBMITTED)
+  triageStatus     TriageStatus      @default(PENDING)
+  triageNotes      String?           @db.Text
+  triagedAt        DateTime?
+  language         String
+  consultationType String
+  ayushSystem      String?
+  concern          String
+  symptomKey       String?
+  bodyRegions      Json
+  answers          Json
+  draftData        Json?
+  safetyFindings   Json?
+  startedAt        DateTime?
+  submittedAt      DateTime          @default(now())
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  patient          PatientProfile    @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  organization     Organization?     @relation("AssessmentOrganization", fields: [organizationId], references: [id], onDelete: SetNull)
+  consent          Consent?          @relation(fields: [consentId], references: [id], onDelete: SetNull)
+  assignedDoctor   User?             @relation("AssignedDoctor", fields: [assignedDoctorId], references: [id], onDelete: SetNull)
+  triagedBy        User?             @relation("StaffTriaged", fields: [triagedById], references: [id], onDelete: SetNull)
+  documents        MedicalDocument[]
+  reviews          DoctorReview[]
+
+  @@index([patientId, submittedAt])
+  @@index([assignedDoctorId, status, submittedAt])
+  @@index([status, submittedAt])
+  @@index([organizationId, status, submittedAt])
+  @@index([triageStatus, status, submittedAt])
+}
+
+model MedicalHistory {
+  id              String         @id @default(cuid())
+  patientId       String         @unique
+  conditions      String         @default("")
+  allergies       String         @default("")
+  medications     String         @default("")
+  familyHistory   String         @default("")
+  additionalNotes String         @default("")
+  updatedAt       DateTime       @updatedAt
+  patient         PatientProfile @relation(fields: [patientId], references: [id], onDelete: Cascade)
+}
+
+model MedicalDocument {
+  id            String         @id @default(cuid())
+  patientId     String
+  assessmentId  String?
+  originalName  String
+  mimeType      String
+  byteSize      Int
+  storageKey    String         @unique
+  sha256        String
+  status        DocumentStatus @default(UPLOADED)
+  ocrText       String?
+  ocrMethod     String?
+  ocrConfidence Int?
+  confirmedAt   DateTime?
+  confirmedBy   String?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  patient       PatientProfile @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  assessment    Assessment?    @relation(fields: [assessmentId], references: [id], onDelete: SetNull)
+
+  @@index([patientId, createdAt])
+  @@index([assessmentId])
+}
+
+model DoctorReview {
+  id           String           @id @default(cuid())
+  assessmentId String
+  doctorId     String
+  status       AssessmentStatus
+  notes        String           @default("")
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+  assessment   Assessment       @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
+  doctor       User             @relation(fields: [doctorId], references: [id], onDelete: Restrict)
+
+  @@index([assessmentId, createdAt])
+  @@index([doctorId, createdAt])
+}
+
+model AuditEvent {
+  id         String   @id @default(cuid())
+  actorId    String?
+  action     String
+  entityType String
+  entityId   String?
+  createdAt  DateTime @default(now())
+  actor      User?    @relation("AuditActor", fields: [actorId], references: [id], onDelete: SetNull)
+
+  @@index([actorId, createdAt])
+  @@index([entityType, entityId, createdAt])
+}

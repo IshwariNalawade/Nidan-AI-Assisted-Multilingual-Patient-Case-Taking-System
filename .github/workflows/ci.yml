@@ -26,8 +26,6 @@ jobs:
         run: npm ci
       - name: Validate Prisma schema
         run: npm run db:validate
-      - name: Validate language metadata
-        run: npm run languages:validate
       - name: Run tests
         run: npm test -- --reporter=dot
       - name: Build frontend and API

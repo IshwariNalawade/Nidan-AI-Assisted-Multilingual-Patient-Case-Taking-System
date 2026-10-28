@@ -10,11 +10,23 @@ Many patients spend their first minutes in a clinic repeating the same story acr
 
 ## The hackathon demo
 
-## Demo video
+1. Open the kiosk and choose English, Hindi, or Marathi.
+2. Use the **Hackathon demo** button to load a clearly fictional patient.
+3. Walk through the 16-step intake with touch, typing, or browser voice controls.
+4. Upload a sample report to see local OCR and patient confirmation before extracted text is used.
+5. Trigger a red-flag answer to see the visible safety banner and staff alert handoff.
+6. Open the staff, patient, or doctor workspaces to show the same case moving through triage and review.
+
+The demo never pre-checks consent and displays a fictional-data warning. Do not enter real patient, Aadhaar, ABHA, or report information.
+
+## Demo access
+The primary hackathon demonstration is available through the recorded video below. The localhost instructions are provided only for developers who want to run the project locally.
+
+### Demo video
 
 Watch the complete NIDAN hackathon walkthrough:
 
-[▶ Watch the NIDAN demo video](https://drive.google.com/file/d/118s5ZPcwcBSDqu9jl1lhHBM3j-7U-L2O/view?usp=sharing
+[▶ Watch the NIDAN demo video](https://drive.google.com/file/d/118s5ZPcwcBSDqu9jl1lhHBM3j-7U-L2O/view?usp=sharing)
 
 ## OCR demo sample
 
@@ -25,14 +37,6 @@ Use this clearly fictional report to test the browser OCR workflow:
 
 The report contains synthetic data for Anjali Patil, age 42, and is intended only for hackathon demonstration and OCR testing. It is not a real medical record, diagnosis, prescription, or clinical document.
 
-1. Open the kiosk and choose English, Hindi, or Marathi.
-2. Use the **Hackathon demo** button to load a clearly fictional patient.
-3. Walk through the 16-step intake with touch, typing, or browser voice controls.
-4. Upload a sample report to see local OCR and patient confirmation before extracted text is used.
-5. Trigger a red-flag answer to see the visible safety banner and staff alert handoff.
-6. Open the staff, patient, or doctor workspaces to show the same case moving through triage and review.
-
-The demo never pre-checks consent and displays a fictional-data warning. Do not enter real patient, Aadhaar, ABHA, or report information.
 
 ## What is implemented
 
@@ -69,17 +73,6 @@ prisma/             MySQL schema, migrations, and seed helpers
 tests/              UI, safety, privacy, localization, API, and accessibility tests
 docs/               deployment, integration, review, and test protocols
 ```
-
-## Quick start: kiosk only
-
-Requirements: Node.js 22.12+ (or Node 24+) and a modern Chromium-based browser for microphone/camera permissions.
-
-```bash
-npm ci
-npm run dev
-```
-
-Open <http://localhost:3000>. This path runs the kiosk without a database and is the fastest way to judge the core experience.
 
 ## Quick start: full stack
 

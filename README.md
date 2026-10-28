@@ -10,6 +10,23 @@ Many patients spend their first minutes in a clinic repeating the same story acr
 
 ## The hackathon demo
 
+## Demo video
+
+Watch the complete NIDAN hackathon walkthrough:
+
+[▶ Watch the NIDAN demo video](https://drive.google.com/file/d/118s5ZPcwcBSDqu9jl1lhHBM3j-7U-L2O/view?usp=sharing
+<img width="792" height="45" alt="image" src="https://github.com/user-attachments/assets/0166c6b0-9133-4599-b3e1-b06ee3a9f981" />
+)
+
+## OCR demo sample
+
+Use this clearly fictional report to test the browser OCR workflow:
+
+- [Download the sample PDF report](demo-assets/nidan-demo-chest-pain-report-anjali-patil.pdf)
+- [Download the OCR-friendly PNG report](demo-assets/nidan-demo-chest-pain-report-anjali-patil.png)
+
+The report contains synthetic data for Anjali Patil, age 42, and is intended only for hackathon demonstration and OCR testing. It is not a real medical record, diagnosis, prescription, or clinical document.
+
 1. Open the kiosk and choose English, Hindi, or Marathi.
 2. Use the **Hackathon demo** button to load a clearly fictional patient.
 3. Walk through the 16-step intake with touch, typing, or browser voice controls.

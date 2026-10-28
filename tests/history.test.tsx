@@ -19,13 +19,13 @@ afterEach(() => { cleanup(); window.location.hash = ''; vi.unstubAllEnvs(); vi.u
 beforeEach(async () => { await auditIdle(); lock() })
 const base = (p: Partial<Session> = {}): Session => ({ ...newSession(), lang: 'en-IN', voiceOptIn: 'yes', ...p, profile: { ...newSession().profile, name: 'Ramesh Kale', age: '58', sex: 'male', phone: '9876543210', abha: 'ABHA-DEMO-DEMO-042', type: 'new', ...(p.profile ?? {}) } })
 
-describe('languages: 14 translated beyond English (3 full, 11 core drafts), honestly tiered', () => {
-  it('has all 85 core keys for every language, each in the right script, placeholders intact', () => {
-    for (const [l, d] of Object.entries(LOC)) { expect(Object.keys(d)).toHaveLength(85); for (const [k, v] of Object.entries(d)) { expect(v.trim(), `${l}.${k}`).not.toBe(''); expect(SCRIPT[l].test(v), `${l}.${k} script`).toBe(true) } expect(d.emBody).toContain('{x}') }
+describe('languages: translated UI plus honestly labelled proxy/draft coverage', () => {
+  it('has at least the 85 core keys for every language, each in the right script, placeholders intact', () => {
+    for (const [l, d] of Object.entries(LOC)) { expect(Object.keys(d).length, l).toBeGreaterThanOrEqual(85); for (const [k, v] of Object.entries(d)) { expect(v.trim(), `${l}.${k}`).not.toBe(''); expect(SCRIPT[l].test(v), `${l}.${k} script`).toBe(true) } expect(d.emBody).toContain('{x}') }
   })
   it('every translated key has an English source', () => { for (const k of Object.keys(LOC.bn)) expect(dict[k], k).toBeTruthy() })
-  it('tiers: mr/hi/en full; bn..ne core-draft; ks/sat none', () => { expect(uiTier('mr-IN')).toBe('full'); expect(uiTier('ta-IN')).toBe('core-draft'); expect(uiTier('ks-IN')).toBe('none'); expect(uiTier('sat-IN')).toBe('none') })
-  it('makeUi falls back key-by-key to English for untranslated keys', () => { const ui = makeUi('ta-IN'); expect(ui('next')).toBe('அடுத்து'); expect(ui('stepOf', { a: 1, b: 16 })).toBe('1 of 16') })
+  it('tiers: only reviewed languages are full; draft locales and related-language proxies are draft', () => { expect(uiTier('mr-IN')).toBe('draft'); expect(uiTier('ta-IN')).toBe('draft'); expect(uiTier('ks-IN')).toBe('draft'); expect(uiTier('sat-IN')).toBe('draft') })
+  it('makeUi uses the translated value for a covered key and falls back only when absent', () => { const ui = makeUi('ta-IN'); expect(ui('next')).toBe('அடுத்து'); expect(ui('stepOf', { a: 1, b: 16 })).toBe('16-இல் 1') })
   it('Urdu renders right-to-left with translated buttons', () => { localStorage.clear(); render(<App initial={{ lang: 'ur-IN', step: 'consent', voiceOptIn: 'yes' }} />); expect(document.documentElement.dir).toBe('rtl'); expect(screen.getByText('آگے')).toBeTruthy() })
 })
 
@@ -53,7 +53,7 @@ describe('patient key + staff-owned history', () => {
     await setupVault('correct horse battery'); const pid = await patientKey('9876543210')
     await saveSession({ ...base({ id: 'v1', startedAt: '2026-09-01T10:00:00Z', concern: 'cough last month', token: 'T-001' }), pid }); await saveSession({ ...base({ id: 'v2', startedAt: '2026-10-10T10:00:00Z', concern: 'fever now', token: 'T-002' }), pid })
     lock(); window.location.hash = '#/staff'; render(<App />); fireEvent.change(screen.getByPlaceholderText('Passphrase'), { target: { value: 'correct horse battery' } }); fireEvent.click(screen.getByText('Sign in'))
-    fireEvent.click(await screen.findByRole('tab', { name: 'Patients' })); fireEvent.click((await screen.findAllByText('fever now', { exact: false }))[0].closest('button')!)
+    fireEvent.click(await screen.findByRole('tab', { name: 'Doctor dashboard' })); fireEvent.click((await screen.findAllByText('fever now', { exact: false }))[0].closest('button')!)
     expect(await screen.findByText(/1 earlier visit/)).toBeTruthy(); expect((await screen.findAllByText(/cough last month/)).length).toBeGreaterThan(0)
     fireEvent.change(await screen.findByLabelText('Long-term conditions'), { target: { value: 'Hypertension' } }); fireEvent.click(screen.getByText('Save history')); expect(await screen.findByText(/History saved \(encrypted\)/)).toBeTruthy()
   })

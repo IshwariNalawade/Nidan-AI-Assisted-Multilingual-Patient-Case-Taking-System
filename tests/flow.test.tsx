@@ -6,7 +6,7 @@ import { heard, spoken } from './setup'
 import { spokenNumber, matchChoice } from '../src/lib/parse'
 import { findFields, validateFile } from '../src/lib/ocr'
 import { questionQueue, safetyTriggers } from '../src/lib/report'
-import { makeUi } from '../src/i18n'
+import { makeUi, uiTier } from '../src/i18n'
 
 vi.mock('../src/lib/ocr', async (orig) => ({
   ...(await orig<typeof import('../src/lib/ocr')>()),
@@ -38,13 +38,13 @@ describe('language and read-aloud', () => {
     await waitFor(() => expect(spoken.some((x) => x.lang === 'mr-IN')).toBe(true), { timeout: 2000 })
   })
   it('Hindi UI', () => { seed({ lang: 'hi-IN', step: 'consent' }); render(<Kiosk />); expect(screen.getByText('आगे बढ़ें')).toBeTruthy() })
-  it('a language with no translation (Kashmiri) falls back to English and says so', () => {
+  it('a language without its own translation uses the related-language proxy and says so', () => {
     seed({ lang: 'ks-IN', step: 'language' }); render(<Kiosk />)
-    expect(screen.getByText(/shown in English for this language/)).toBeTruthy()
+    expect(screen.getByText(/قریبی زبان/)).toBeTruthy()
   })
   it('Gujarati now shows translated core screens, flagged as a draft translation', () => {
     seed({ lang: 'gu-IN', step: 'consent' }); render(<Kiosk />)
-    expect(screen.getByText('આગળ')).toBeTruthy(); expect(screen.getAllByText('તમારી સંમતિ').length).toBeGreaterThan(0); expect(screen.getAllByText(/Draft translation/).length).toBeGreaterThan(0)
+    expect(screen.getByText('આગળ')).toBeTruthy(); expect(screen.getAllByText('તમારી સંમતિ').length).toBeGreaterThan(0); expect(uiTier('gu-IN')).toBe('draft')
   })
   it('lists 23 language options', () => { seed({ lang: 'en-IN', step: 'language' }); render(<Kiosk />); expect(screen.getAllByRole('radio')).toHaveLength(23) })
 })
